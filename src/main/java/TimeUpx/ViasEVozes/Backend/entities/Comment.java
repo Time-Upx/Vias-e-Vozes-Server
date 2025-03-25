@@ -5,8 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.*;
 
-@Table(name = "comments")
-@Entity
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(setterPrefix = "with")

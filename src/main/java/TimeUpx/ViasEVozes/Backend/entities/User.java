@@ -1,15 +1,16 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
+import TimeUpx.ViasEVozes.Backend.dto.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.*;
-import org.springframework.boot.context.properties.bind.*;
 
+import java.time.*;
 import java.util.*;
 
-@Table(name = "users")
+@Table(name = "Users")
 @Entity
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,28 +26,53 @@ public class User
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotNull
 	private String name;
 
-	@NotNull
 	@Enumerated(EnumType.STRING)
 	private UserRole role;
 
-	@NotNull
 	private String password;
 
 	@Lob
-	@Convert(converter = ImageValue.Converter.class)
-	private ImageValue profilePicture;
+	@Convert(converter = Image.Converter.class)
+	private Image profilePicture;
 
 	@Email
-	@NotNull
 	private String email;
 
-	@OneToMany
+	private boolean preferAnonymous;
+
+	private boolean isActive;
+
+	private LocalDateTime dateOfArrival;
+
+	@ManyToMany
+	@JoinTable(
+			name = "saved_contributions",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "contribution_id")
+	)
 	private List<Contribution> savedContributions;
 
-	private boolean preferAnonymous = true;
-
-	private boolean isActive = true;
+	public static User toEntity(UserRegisterDTO dto)
+	{
+		if (dto == null) {
+			return null;
+		}
+		Image profilePicture =
+				dto.profilePicture() == null || dto.profilePicture().content().length == 0 ?
+				Image.of(new byte[0]) : dto.profilePicture();
+		return builder()
+				.withId(null)
+				.withName(dto.name())
+				.withRole(dto.role())
+				.withPassword(dto.password())
+				.withProfilePicture(profilePicture)
+				.withEmail(dto.email())
+				.withPreferAnonymous(dto.preferAnonymous())
+				.withIsActive(true)
+				.withDateOfArrival(LocalDateTime.now())
+				.withSavedContributions(new ArrayList<>())
+				.build();
+	}
 }
