@@ -1,9 +1,11 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
-import TimeUpx.ViasEVozes.Backend.dto.*;
+import TimeUpx.ViasEVozes.Backend.dto.register.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.*;
+
+import java.util.*;
 
 @AllArgsConstructor (access = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -26,12 +28,25 @@ public class ContributionLink
 	@JoinColumn(name = "contribution_id")
 	private Contribution contribution;
 
+	public void withContribution(Contribution contribution) {
+		this.contribution = contribution;
+	}
+
 	public static ContributionLink of(ContributionLinkRegisterDTO dto) {
+		if (dto == null) {
+			return null;
+		}
 		return builder()
-				.withId(null)
 				.withName(dto.name())
 				.withUrl(dto.url())
-				.withContribution(null)
 				.build();
+	}
+
+	public static List<ContributionLink> listFrom(ContributionLinkRegisterDTO[] dtoArray) {
+		if (dtoArray == null || dtoArray.length == 0) {
+			return new ArrayList<>();
+		} else {
+			return Arrays.stream(dtoArray).map(ContributionLink::of).toList();
+		}
 	}
 }

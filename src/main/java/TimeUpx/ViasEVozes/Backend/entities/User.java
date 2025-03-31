@@ -1,17 +1,13 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
-import TimeUpx.ViasEVozes.Backend.dto.*;
+import TimeUpx.ViasEVozes.Backend.dto.register.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.*;
 
 import java.time.*;
 import java.util.*;
-
-@Table(name = "Users")
-@Entity
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(setterPrefix = "with")
@@ -19,7 +15,7 @@ import java.util.*;
 @Accessors(fluent = true)
 @NoArgsConstructor
 @Getter
-
+@Entity
 public class User
 {
 	@Id
@@ -37,7 +33,6 @@ public class User
 	@Convert(converter = Image.Converter.class)
 	private Image profilePicture;
 
-	@Email
 	private String email;
 
 	private boolean preferAnonymous;
@@ -54,25 +49,30 @@ public class User
 	)
 	private List<Contribution> savedContributions;
 
-	public static User toEntity(UserRegisterDTO dto)
+	public static User of(UserRegisterDTO dto)
 	{
 		if (dto == null) {
 			return null;
 		}
-		Image profilePicture =
-				dto.profilePicture() == null || dto.profilePicture().content().length == 0 ?
-				Image.of(new byte[0]) : dto.profilePicture();
+
+		// Defines default values or processes dto data into more usable options
+		Image image = Image.of(dto.profilePictureContent());
+		LocalDateTime dateOfArrival = LocalDateTime.now();
+		// Sets default value as "true"
+		boolean preferAnonymous = dto.preferAnonymous() == null || dto.preferAnonymous();
+		boolean isActive = true;
+		List<Contribution> savedContributions = new ArrayList<>();
+
 		return builder()
-				.withId(null)
 				.withName(dto.name())
 				.withRole(dto.role())
 				.withPassword(dto.password())
-				.withProfilePicture(profilePicture)
+				.withProfilePicture(image)
 				.withEmail(dto.email())
-				.withPreferAnonymous(dto.preferAnonymous())
-				.withIsActive(true)
-				.withDateOfArrival(LocalDateTime.now())
-				.withSavedContributions(new ArrayList<>())
+				.withPreferAnonymous(preferAnonymous)
+				.withIsActive(isActive)
+				.withDateOfArrival(dateOfArrival)
+				.withSavedContributions(savedContributions)
 				.build();
 	}
 }

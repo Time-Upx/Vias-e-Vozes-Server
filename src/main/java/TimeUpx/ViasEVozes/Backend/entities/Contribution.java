@@ -1,6 +1,6 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
-import TimeUpx.ViasEVozes.Backend.dto.*;
+import TimeUpx.ViasEVozes.Backend.dto.register.*;
 import TimeUpx.ViasEVozes.Backend.services.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
@@ -53,31 +53,43 @@ public class Contribution
 
 	private boolean isActive;
 
+	@OneToOne (mappedBy = "contribution", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "contribution_id")
+	private Address address;
+
 	public static Contribution of(ContributionRegisterDTO dto, UserService userService)
 	{
-		Image image =
-				dto.image() == null || dto.image().content().length == 0 ?
-				Image.of(new byte[0]) : dto.image();
+		if (dto == null) {
+			return null;
+		}
 
+		Image image = Image.of(dto.imageContent());
 		User author = userService.retrieveFromId(dto.authorId());
+		List<ContributionLink> links = ContributionLink.listFrom(dto.links());
+		LocalDateTime timeOfCreation = LocalDateTime.now();
+		// Sets default value as "true"
+		boolean isAnonymous = dto.isAnonymous() == null || dto.isAnonymous();
+		Address address = Address.of(dto.address());
 
-		List<ContributionLink> links =
-				dto.links() == null ?
-				new ArrayList<>() : Arrays.stream(dto.links()).map(ContributionLink::of).toList();
-
-		return builder()
-				.withId(null)
+		Contribution contribution = builder()
 				.withType(dto.type())
 				.withName(dto.name())
 				.withDescription(dto.description())
-				.withLinks(links)
 				.withImage(image)
 				.withAuthor(author)
-				.withTimeOfCreation(LocalDateTime.now())
-				.withIsAnonymous(dto.isAnonymous())
+				.withLinks(links)
+				.withTimeOfCreation(timeOfCreation)
+				.withIsAnonymous(isAnonymous)
 				.withQuantityOfLikes(0)
 				.withStatus(ContributionStatus.ANALYSING)
 				.withIsActive(true)
+				.withAddress(address)
 				.build();
+
+		// Setting back reference in needed attributes
+		contribution.links.forEach(l -> l.withContribution(contribution));
+		contribution.address.withContribution(contribution);
+
+		return contribution;
 	}
 }
