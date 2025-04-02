@@ -1,6 +1,7 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
 import TimeUpx.ViasEVozes.Backend.dto.register.*;
+import TimeUpx.ViasEVozes.Backend.dto.update.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.*;
@@ -32,7 +33,18 @@ public class ContributionLink
 		this.contribution = contribution;
 	}
 
-	public static ContributionLink of(ContributionLinkRegisterDTO dto) {
+	public ContributionLink update(ContributionLinkUpdateDTO dto)
+	{
+		if (dto == null) return null;
+
+		if (dto.name() != null) this.name = dto.name();
+		if (dto.url() != null) this.url = dto.url();
+
+		return this;
+	}
+
+	public static ContributionLink of(ContributionLinkRegisterDTO dto)
+	{
 		if (dto == null) {
 			return null;
 		}

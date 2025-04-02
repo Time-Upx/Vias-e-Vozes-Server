@@ -26,5 +26,6 @@ public record ContributionRegisterDTO
 	Boolean isAnonymous,
 
 	@Valid
+	@NotNull
 	AddressRegisterDTO address
 ) {}

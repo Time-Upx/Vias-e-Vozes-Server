@@ -1,6 +1,7 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
 import TimeUpx.ViasEVozes.Backend.dto.register.*;
+import TimeUpx.ViasEVozes.Backend.dto.update.*;
 import TimeUpx.ViasEVozes.Backend.services.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
@@ -9,7 +10,6 @@ import lombok.experimental.*;
 
 import java.time.*;
 import java.util.*;
-
 
 @AllArgsConstructor (access = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -54,14 +54,34 @@ public class Contribution
 	private boolean isActive;
 
 	@OneToOne (mappedBy = "contribution", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "contribution_id")
+	@JoinColumn (name = "contribution_id")
 	private Address address;
+
+	public Contribution update(ContributionUpdateDTO dto)
+	{
+		if (dto == null) return null;
+
+		if (dto.type() != null) type = dto.type();
+		if (dto.name() != null) name = dto.name();
+		if (dto.description() != null) description = dto.description();
+		if (dto.links() != null)
+			links.forEach(link -> {
+				var updateValue = Arrays.stream(dto.links())
+						.filter(l -> l.id().equals(link.id()))
+						.findFirst();
+				updateValue.ifPresent(link::update);
+			});
+		if (dto.imageContent() != null) image = Image.of(dto.imageContent());
+		if (dto.isAnonymous() != null) isAnonymous = dto.isAnonymous();
+		if (dto.status() != null) status = dto.status();
+		if (dto.address() != null) address.update(dto.address());
+
+		return this;
+	}
 
 	public static Contribution of(ContributionRegisterDTO dto, UserService userService)
 	{
-		if (dto == null) {
-			return null;
-		}
+		if (dto == null) return null;
 
 		Image image = Image.of(dto.imageContent());
 		User author = userService.retrieveFromId(dto.authorId());

@@ -6,6 +6,7 @@ import lombok.*;
 @Builder (setterPrefix = "with")
 public record AddressListDTO
 (
+	Long id,
 	String CEP,
 	String state,
 	String city,
@@ -19,6 +20,7 @@ public record AddressListDTO
 			return null;
 		}
 		return builder()
+				.withId(address.id())
 				.withCEP(address.CEP())
 				.withState(address.state())
 				.withCity(address.city())

@@ -23,9 +23,7 @@ public record ContributionListDTO(
 ) {
 	public static ContributionListDTO of(Contribution contribution)
 	{
-		if (contribution == null) {
-			return null;
-		}
+		if (contribution == null) return null;
 
 		var links = ContributionLinkListDTO.fromList(contribution.links());
 		byte[] imageContent = contribution.image().content();

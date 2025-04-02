@@ -7,11 +7,16 @@ import java.util.*;
 
 @Builder (setterPrefix = "with")
 public record ContributionLinkListDTO(
+		Long id,
 		String name,
 		String url
 ) {
 	public static ContributionLinkListDTO of (ContributionLink link) {
+		if (link == null) {
+			return null;
+		}
 		return builder()
+				.withId(link.id())
 				.withName(link.name())
 				.withUrl(link.url())
 				.build();

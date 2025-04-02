@@ -2,11 +2,14 @@ package TimeUpx.ViasEVozes.Backend.controllers;
 
 import TimeUpx.ViasEVozes.Backend.dto.list.*;
 import TimeUpx.ViasEVozes.Backend.dto.register.*;
+import TimeUpx.ViasEVozes.Backend.dto.update.*;
 import TimeUpx.ViasEVozes.Backend.entities.*;
 import TimeUpx.ViasEVozes.Backend.services.*;
 import jakarta.transaction.*;
 import jakarta.validation.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,14 +27,30 @@ public class ContributionController
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<ContributionRegisterDTO> register(@Valid @RequestBody ContributionRegisterDTO dto) {
+	public ResponseEntity<ContributionRegisterDTO> register(
+			@Valid @RequestBody
+			ContributionRegisterDTO dto
+	) {
 		service.register(Contribution.of(dto, userService));
 		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping
+	public Page<ContributionListDTO> list(
+			@PageableDefault(size = 10, sort = {"timeOfCreation"})
+			Pageable page
+	) {
+		return service.list(page);
+	}
+
+	@PutMapping
 	@Transactional
-	public List<ContributionListDTO> list() {
-		return service.list();
+	public ResponseEntity<ContributionListDTO> update (
+			@Valid @RequestBody
+			ContributionUpdateDTO dto
+	) {
+		var contribution = service.update(dto);
+		var listDTO = ContributionListDTO.of(contribution);
+		return ResponseEntity.ok(listDTO);
 	}
 }

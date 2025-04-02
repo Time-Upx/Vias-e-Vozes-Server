@@ -1,13 +1,12 @@
 package TimeUpx.ViasEVozes.Backend.services;
 
-import TimeUpx.ViasEVozes.Backend.dto.*;
+import TimeUpx.ViasEVozes.Backend.dto.list.*;
 import TimeUpx.ViasEVozes.Backend.entities.*;
 import TimeUpx.ViasEVozes.Backend.exceptions.*;
 import TimeUpx.ViasEVozes.Backend.repositories.*;
-import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.validation.*;
-import lombok.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
@@ -21,6 +20,13 @@ public class UserService {
 	public void register(@Valid User user) {
 		repository.save(user);
 	}
+
+	public Page<UserListDTO> list(Pageable page) {
+		return repository.findAll(page).map(UserListDTO::of);
+	}
+
+
+
 	public User retrieveFromId(Long id) {
 		Optional<User> user = repository.findById(id);
 		if (user.isPresent()) {
