@@ -45,9 +45,7 @@ public class ContributionLink
 
 	public static ContributionLink of(ContributionLinkRegisterDTO dto)
 	{
-		if (dto == null) {
-			return null;
-		}
+		if (dto == null) return null;
 		return builder()
 				.withName(dto.name())
 				.withUrl(dto.url())

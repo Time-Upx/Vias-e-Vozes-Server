@@ -19,7 +19,8 @@ public record ContributionListDTO(
 		boolean isAnonymous,
 		int quantityOfLikes,
 		ContributionStatus status,
-		AddressListDTO address
+		AddressListDTO address,
+		boolean isActive
 ) {
 	public static ContributionListDTO of(Contribution contribution)
 	{
@@ -43,6 +44,7 @@ public record ContributionListDTO(
 				.withQuantityOfLikes(contribution.quantityOfLikes())
 				.withStatus(contribution.status())
 				.withAddress(address)
+				.withIsActive(contribution.isActive())
 				.build();
 	}
 }

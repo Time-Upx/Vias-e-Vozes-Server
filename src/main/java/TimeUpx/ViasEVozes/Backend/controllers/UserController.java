@@ -18,16 +18,20 @@ public class UserController
 	@Autowired
 	private UserService service;
 
-	@PostMapping
 	@Transactional
-	public ResponseEntity<UserRegisterDTO> register(@Valid @RequestBody UserRegisterDTO dto) {
+	@PostMapping
+	public void save(@Valid @RequestBody UserRegisterDTO dto) {
 		service.register(User.of(dto));
-		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping
-	@Transactional
 	public Page<UserListDTO> list(Pageable page) {
 		return service.list(page);
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}")
+	public void delete(@PathVariable Long id) {
+		service.delete(id);
 	}
 }

@@ -1,6 +1,7 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
 import TimeUpx.ViasEVozes.Backend.dto.register.*;
+import TimeUpx.ViasEVozes.Backend.dto.update.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,17 +50,32 @@ public class User
 	)
 	private List<Contribution> savedContributions;
 
+	public void setInactive() {
+		this.isActive = false;
+	}
+
+	public User update(UserUpdateDTO dto)
+	{
+		if (dto == null) return null;
+
+		if (dto.name() != null) this.name = dto.name();
+		if (dto.role() != null) this.role = dto.role();
+		if (dto.password() != null) this.password = dto.password();
+		if (dto.pictureContent() != null) this.profilePicture = Image.of(dto.pictureContent());
+		if (dto.email() != null) this.email = dto.email();
+		if (dto.preferAnonymous() != null) this.preferAnonymous = dto.preferAnonymous();
+
+		return this;
+	}
+
 	public static User of(UserRegisterDTO dto)
 	{
-		if (dto == null) {
-			return null;
-		}
+		if (dto == null) return null;
 
 		// Defines default values or processes dto data into more usable options
 		Image image = Image.of(dto.profilePictureContent());
 		LocalDateTime dateOfArrival = LocalDateTime.now();
-		// Sets default value as "true"
-		boolean preferAnonymous = dto.preferAnonymous() == null || dto.preferAnonymous();
+		boolean preferAnonymous = dto.preferAnonymous() == null || dto.preferAnonymous(); // Sets default value as "true"
 		boolean isActive = true;
 		List<Contribution> savedContributions = new ArrayList<>();
 

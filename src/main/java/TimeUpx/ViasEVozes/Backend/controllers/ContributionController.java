@@ -25,14 +25,10 @@ public class ContributionController
 	@Autowired
 	private UserService userService;
 
-	@PostMapping
 	@Transactional
-	public ResponseEntity<ContributionRegisterDTO> register(
-			@Valid @RequestBody
-			ContributionRegisterDTO dto
-	) {
+	@PostMapping
+	public void register(@Valid @RequestBody ContributionRegisterDTO dto) {
 		service.register(Contribution.of(dto, userService));
-		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping
@@ -43,14 +39,15 @@ public class ContributionController
 		return service.list(page);
 	}
 
-	@PutMapping
 	@Transactional
-	public ResponseEntity<ContributionListDTO> update (
-			@Valid @RequestBody
-			ContributionUpdateDTO dto
-	) {
-		var contribution = service.update(dto);
-		var listDTO = ContributionListDTO.of(contribution);
-		return ResponseEntity.ok(listDTO);
+	@PutMapping ("/{id}")
+	public void update (@PathVariable long id, @Valid @RequestBody ContributionUpdateDTO dto) {
+		service.update(id, dto);
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}")
+	public void delete (@PathVariable long id) {
+		service.delete(id);
 	}
 }

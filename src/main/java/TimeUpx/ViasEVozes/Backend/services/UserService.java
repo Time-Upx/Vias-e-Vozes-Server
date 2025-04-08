@@ -22,12 +22,15 @@ public class UserService {
 	}
 
 	public Page<UserListDTO> list(Pageable page) {
-		return repository.findAll(page).map(UserListDTO::of);
+		return repository.findAllByIsActiveTrue(page).map(UserListDTO::of);
 	}
 
+	public void delete(long id) {
+		User user = retrieveFromId(id);
+		user.setInactive();
+	}
 
-
-	public User retrieveFromId(Long id) {
+	public User retrieveFromId(long id) {
 		Optional<User> user = repository.findById(id);
 		if (user.isPresent()) {
 			return user.get();

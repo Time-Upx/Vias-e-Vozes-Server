@@ -57,6 +57,10 @@ public class Contribution
 	@JoinColumn (name = "contribution_id")
 	private Address address;
 
+	public void setInactive() {
+		this.isActive = false;
+	}
+
 	public Contribution update(ContributionUpdateDTO dto)
 	{
 		if (dto == null) return null;
@@ -64,17 +68,18 @@ public class Contribution
 		if (dto.type() != null) type = dto.type();
 		if (dto.name() != null) name = dto.name();
 		if (dto.description() != null) description = dto.description();
-		if (dto.links() != null)
+		if (dto.imageContent() != null) image = Image.of(dto.imageContent());
+		if (dto.isAnonymous() != null) isAnonymous = dto.isAnonymous();
+		if (dto.status() != null) status = dto.status();
+		if (dto.address() != null) address.update(dto.address());
+		if (dto.links() != null) {
 			links.forEach(link -> {
 				var updateValue = Arrays.stream(dto.links())
 						.filter(l -> l.id().equals(link.id()))
 						.findFirst();
 				updateValue.ifPresent(link::update);
 			});
-		if (dto.imageContent() != null) image = Image.of(dto.imageContent());
-		if (dto.isAnonymous() != null) isAnonymous = dto.isAnonymous();
-		if (dto.status() != null) status = dto.status();
-		if (dto.address() != null) address.update(dto.address());
+		}
 
 		return this;
 	}

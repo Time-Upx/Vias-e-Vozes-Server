@@ -23,12 +23,17 @@ public class ContributionService {
 	}
 
 	public Page<ContributionListDTO> list(Pageable page) {
-		return repository.findAll(page).map(ContributionListDTO::of);
+		return repository.findAllByIsActiveTrue(page).map(ContributionListDTO::of);
 	}
 
-	public Contribution update(ContributionUpdateDTO dto) {
-		Contribution contribution = retrieveFromId(dto.id());
-		return contribution.update(dto);
+	public void update(long id, ContributionUpdateDTO dto) {
+		Contribution contribution = retrieveFromId(id);
+		contribution.update(dto);
+	}
+
+	public void delete (long id) {
+		Contribution contribution = retrieveFromId(id);
+		contribution.setInactive();
 	}
 
 	public Contribution retrieveFromId(Long id) {
