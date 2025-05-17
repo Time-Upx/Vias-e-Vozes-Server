@@ -1,53 +1,108 @@
 package TimeUpx.ViasEVozes.Backend.controllers;
 
-import TimeUpx.ViasEVozes.Backend.dto.list.*;
-import TimeUpx.ViasEVozes.Backend.dto.register.*;
-import TimeUpx.ViasEVozes.Backend.dto.update.*;
+import TimeUpx.ViasEVozes.Backend.dtos.*;
 import TimeUpx.ViasEVozes.Backend.entities.*;
 import TimeUpx.ViasEVozes.Backend.services.*;
+import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.transaction.*;
 import jakarta.validation.*;
+import lombok.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.*;
+import org.springframework.web.util.*;
 
-import java.util.*;
+import java.io.*;
 
 @RestController
-@RequestMapping("/contribution")
-public class ContributionController
-{
-	@Autowired
-	private ContributionService service;
+@RequestMapping ("/contribution")
+@RequiredArgsConstructor
+public class ContributionController {
 
-	@Autowired
-	private UserService userService;
+	private final ContributionService service;
+	private final UserService userService;
 
 	@Transactional
 	@PostMapping
-	public void register(@Valid @RequestBody ContributionRegisterDTO dto) {
-		service.register(Contribution.of(dto, userService));
+	public ResponseEntity save (
+			@Valid @RequestBody ContributionSavingDTO dto,
+			UriComponentsBuilder uriBuilder
+	) {
+		var author = userService.getById(dto.authorId());
+		var contribution = service.insert(Contribution.of(dto, author));
+		var uri = uriBuilder.path("/contribution/{id}").buildAndExpand(contribution.id()).toUri();
+		return ResponseEntity.created(uri).body(contribution.details());
+	}
+
+	@Transactional
+	@PostMapping ("/{id}/like")
+	public ResponseEntity increaseLike (@PathVariable long id) {
+		return ResponseEntity.ok(service.adjustLikes(id, 1).details());
 	}
 
 	@GetMapping
-	public Page<ContributionListDTO> list(
-			@PageableDefault(size = 10, sort = {"timeOfCreation"})
-			Pageable page
+	public ResponseEntity getAll (
+			@PageableDefault (
+					size = 10,
+					sort = {"timeOfCreation"}
+			) Pageable page
 	) {
-		return service.list(page);
+		return ResponseEntity.ok(service.getAll(page).map(ContributionListingDTO::of));
+	}
+
+	@GetMapping ("/{id}")
+	public ResponseEntity getDetails (@PathVariable long id) {
+		return ResponseEntity.ok(service.getById(id).details());
+	}
+
+	@GetMapping ("/{id}/favorites")
+	public ResponseEntity getFavoritedBy (
+			@PageableDefault (
+					size = 5,
+					sort = {"dateOfArrival"}
+			) Pageable page,
+			@PathVariable long id
+	) {
+		return ResponseEntity.ok(userService.getFavoritedBy(page, id).map(UserListingDTO::of));
 	}
 
 	@Transactional
 	@PutMapping ("/{id}")
-	public void update (@PathVariable long id, @Valid @RequestBody ContributionUpdateDTO dto) {
-		service.update(id, dto);
+	public ResponseEntity update (
+			@PathVariable long id,
+			@Valid @RequestBody ContributionUpdatingDTO dto
+	) {
+		return ResponseEntity.ok(service.update(id, dto).details());
 	}
 
 	@Transactional
 	@DeleteMapping ("/{id}")
-	public void delete (@PathVariable long id) {
-		service.delete(id);
+	public ResponseEntity remove (@PathVariable long id) {
+		return ResponseEntity.ok(service.remove(id).details());
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}/like")
+	public ResponseEntity decreaseLike (@PathVariable long id) {
+		return ResponseEntity.ok(service.adjustLikes(id, -1).details());
+	}
+
+	@Transactional
+	@PatchMapping ("/{id}/activate")
+	public ResponseEntity activate (@PathVariable long id) {
+		return ResponseEntity.ok(service.activate(id).details());
+	}
+
+	@Transactional
+	@PatchMapping (path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity uploadImage (
+			@PathVariable long id,
+			@RequestParam ("file") MultipartFile file,
+			@RequestParam ("placeholder") String placeholder
+	) throws IOException {
+		return ResponseEntity.ok(service.getById(id).image(Image.of(file, placeholder)).details());
 	}
 }

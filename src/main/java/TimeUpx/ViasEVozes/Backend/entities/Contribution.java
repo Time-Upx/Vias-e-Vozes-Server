@@ -1,8 +1,6 @@
 package TimeUpx.ViasEVozes.Backend.entities;
 
-import TimeUpx.ViasEVozes.Backend.dto.register.*;
-import TimeUpx.ViasEVozes.Backend.dto.update.*;
-import TimeUpx.ViasEVozes.Backend.services.*;
+import TimeUpx.ViasEVozes.Backend.dtos.*;
 import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,35 +10,36 @@ import java.time.*;
 import java.util.*;
 
 @AllArgsConstructor (access = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@EqualsAndHashCode (of = "id")
+@NoArgsConstructor (access = AccessLevel.PROTECTED)
+@EqualsAndHashCode (of = {"id"})
 @Accessors (fluent = true)
 @Builder (setterPrefix = "with")
 @Getter
 @Entity
-public class Contribution
-{
+@Table (name = "contributions")
+public class Contribution {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Enumerated(EnumType.STRING)
+	@Enumerated (EnumType.STRING)
 	private ContributionType type;
 
-	private String name;
+	private String title;
 
-	@Column(columnDefinition = "TEXT")
+	@Column (columnDefinition = "TEXT")
 	private String description;
 
-	@OneToMany(mappedBy = "contribution", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ContributionLink> links;
+	@ElementCollection
+	@CollectionTable(name = "contribution_links", joinColumns = @JoinColumn(name = "contribution_id"))
+	private List<Link> links;
 
-	@Lob
-	@Convert(converter = Image.Converter.class)
+	@Embedded
+	@Setter
 	private Image image;
 
 	@ManyToOne
-	@JoinColumn(name = "author_id")
+	@JoinColumn (name = "author_id")
 	private User author;
 
 	private LocalDateTime timeOfCreation;
@@ -48,73 +47,65 @@ public class Contribution
 	private boolean isAnonymous;
 
 	private int quantityOfLikes;
+	public Contribution adjustLikes(int value) {
+		quantityOfLikes += value;
+		if (quantityOfLikes < 0) quantityOfLikes = 0;
+		return this;
+	}
 
 	private ContributionStatus status;
 
+	@Setter
 	private boolean isActive;
 
-	@OneToOne (mappedBy = "contribution", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn (name = "contribution_id")
+	@Embedded
 	private Address address;
 
-	public void setInactive() {
-		this.isActive = false;
+	@ManyToMany
+	@JoinTable (
+			name = "user_favorites",
+			joinColumns = @JoinColumn (name = "contribution_id"),
+			inverseJoinColumns = @JoinColumn (name = "user_id")
+	)
+	private Set<User> favoritedBy;
+
+	public ContributionDetailingDTO details() {
+		return ContributionDetailingDTO.of(this);
 	}
 
-	public Contribution update(ContributionUpdateDTO dto)
-	{
+	public Contribution update (ContributionUpdatingDTO dto) {
 		if (dto == null) return null;
 
 		if (dto.type() != null) type = dto.type();
-		if (dto.name() != null) name = dto.name();
+		if (dto.title() != null) title = dto.title();
 		if (dto.description() != null) description = dto.description();
-		if (dto.imageContent() != null) image = Image.of(dto.imageContent());
 		if (dto.isAnonymous() != null) isAnonymous = dto.isAnonymous();
 		if (dto.status() != null) status = dto.status();
-		if (dto.address() != null) address.update(dto.address());
-		if (dto.links() != null) {
-			links.forEach(link -> {
-				var updateValue = Arrays.stream(dto.links())
-						.filter(l -> l.id().equals(link.id()))
-						.findFirst();
-				updateValue.ifPresent(link::update);
-			});
-		}
+		if (dto.address() != null) address = dto.address();
+		if (dto.links() != null) links = Arrays.asList(dto.links());
 
 		return this;
 	}
 
-	public static Contribution of(ContributionRegisterDTO dto, UserService userService)
-	{
+	public static Contribution of (ContributionSavingDTO dto, User author) {
 		if (dto == null) return null;
 
-		Image image = Image.of(dto.imageContent());
-		User author = userService.retrieveFromId(dto.authorId());
-		List<ContributionLink> links = ContributionLink.listFrom(dto.links());
-		LocalDateTime timeOfCreation = LocalDateTime.now();
 		// Sets default value as "true"
 		boolean isAnonymous = dto.isAnonymous() == null || dto.isAnonymous();
-		Address address = Address.of(dto.address());
 
-		Contribution contribution = builder()
-				.withType(dto.type())
-				.withName(dto.name())
+		return builder().withType(dto.type())
+				.withTitle(dto.title())
 				.withDescription(dto.description())
-				.withImage(image)
+				.withImage(Image.draft(dto.imagePlaceholder()))
 				.withAuthor(author)
-				.withLinks(links)
-				.withTimeOfCreation(timeOfCreation)
+				.withLinks(dto.links() != null ? Arrays.asList(dto.links()) : new ArrayList<>())
+				.withTimeOfCreation(LocalDateTime.now())
 				.withIsAnonymous(isAnonymous)
 				.withQuantityOfLikes(0)
 				.withStatus(ContributionStatus.ANALYSING)
 				.withIsActive(true)
-				.withAddress(address)
+				.withAddress(Address.of(dto.address()))
+				.withFavoritedBy(new HashSet<>())
 				.build();
-
-		// Setting back reference in needed attributes
-		contribution.links.forEach(l -> l.withContribution(contribution));
-		contribution.address.withContribution(contribution);
-
-		return contribution;
 	}
 }

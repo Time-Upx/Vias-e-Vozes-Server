@@ -1,47 +1,52 @@
 package TimeUpx.ViasEVozes.Backend.services;
 
-import TimeUpx.ViasEVozes.Backend.dto.list.*;
-import TimeUpx.ViasEVozes.Backend.dto.update.*;
+import TimeUpx.ViasEVozes.Backend.dtos.*;
 import TimeUpx.ViasEVozes.Backend.entities.*;
-import TimeUpx.ViasEVozes.Backend.exceptions.*;
 import TimeUpx.ViasEVozes.Backend.repositories.*;
+import jakarta.persistence.*;
 import jakarta.validation.*;
-import org.springframework.beans.factory.annotation.*;
+import lombok.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
-import java.util.*;
-
+@RequiredArgsConstructor
 @Service
 public class ContributionService {
 
-	@Autowired
-	private ContributionRepository repository;
+	private final ContributionRepository repository;
 
-	public void register(Contribution contribution) {
-		repository.save(contribution);
+	public Contribution insert (@Valid Contribution contribution) {
+		if (repository.exists(Example.of(contribution)))
+			throw new EntityExistsException("Contribution already exists");
+		return repository.save(contribution);
 	}
 
-	public Page<ContributionListDTO> list(Pageable page) {
-		return repository.findAllByIsActiveTrue(page).map(ContributionListDTO::of);
+	public Page<Contribution> getAll (Pageable page) {
+		return repository.findAllByIsActiveTrue(page);
 	}
 
-	public void update(long id, ContributionUpdateDTO dto) {
-		Contribution contribution = retrieveFromId(id);
-		contribution.update(dto);
+	public Page<Contribution> getAllFavorites (Pageable page, long id) {
+		return repository.findAllActiveFavorites(page, id);
 	}
 
-	public void delete (long id) {
-		Contribution contribution = retrieveFromId(id);
-		contribution.setInactive();
+	public Contribution update (long id, @Valid ContributionUpdatingDTO dto) {
+		return repository.findByIdActive(id).update(dto);
 	}
 
-	public Contribution retrieveFromId(Long id) {
-		Optional<Contribution> contribution = repository.findById(id);
-		if (contribution.isPresent()) {
-			return contribution.get();
-		} else {
-			throw new NotFoundException("Contribution with id:" + id + " not found");
-		}
+	public Contribution remove (long id) {
+		return repository.findByIdActive(id).isActive(false);
+	}
+
+	public Contribution activate (long id) {
+		return repository.findByIdInactive(id).isActive(true);
+	}
+
+	public Contribution getById (long id) {
+		return repository.findByIdActive(id);
+	}
+
+	public Contribution adjustLikes (long id, int value) {
+		var contribution = repository.findByIdActive(id);
+		return contribution.adjustLikes(value);
 	}
 }
