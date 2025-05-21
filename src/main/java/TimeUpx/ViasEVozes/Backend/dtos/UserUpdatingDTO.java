@@ -7,7 +7,6 @@ public record UserUpdatingDTO(
 		String name,
 		UserRole role,
 		String password,
-		String pictureContent,
 		@Email String email,
 		Boolean preferAnonymous
 ) {}

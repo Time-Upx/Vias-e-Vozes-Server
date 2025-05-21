@@ -31,9 +31,7 @@ public class UserController {
 			UriComponentsBuilder uriBuilder
 	) {
 		var user = service.insert(User.of(dto));
-		var uri = uriBuilder.path("/user/{id}")
-				.buildAndExpand(user.id())
-				.toUri();
+		var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.id()).toUri();
 		return ResponseEntity.created(uri).body(user.details());
 	}
 

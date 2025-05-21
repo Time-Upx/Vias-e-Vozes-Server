@@ -24,13 +24,19 @@ public class ErrorHandler {
 
 	@ExceptionHandler (EntityActivityException.class)
 	public ResponseEntity handleEntityActivityException (EntityActivityException exception) {
-		record Error(String error) {}
-		return ResponseEntity.badRequest().body(new Error(exception.getMessage()));
+		record Message(String error) {}
+		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
 	}
 
 	@ExceptionHandler (EntityExistsException.class)
 	public ResponseEntity handleAlreadyExistingEntity (EntityExistsException exception) {
-		record Error(String error) {}
-		return ResponseEntity.badRequest().body(new Error(exception.getMessage()));
+		record Message(String error) {}
+		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
+	}
+
+	@ExceptionHandler (InvalidImageException.class)
+	public ResponseEntity handleInvalidImageException (InvalidImageException exception) {
+		record Message(String error) {}
+		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
 	}
 }
