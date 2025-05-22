@@ -19,13 +19,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
         """)
 	Page<User> findAllActiveFavoritedBy(Pageable pageable, @Param ("contributionId") long contributionId);
 
-	default User findByIdAndIsActiveTrue(long id) {
-		var user = this.getReferenceById(id);
-		if (!user.isActive()) {
-			throw new EntityActivityException(User.class, false);
-		}
-		return user;
-	}
+	User findByIdAndIsActive(long id, boolean isActive);
+//	{
+//		var user = this.getReferenceById(id);
+//		if (!user.isActive()) {
+//			throw new EntityActivityException(User.class, false);
+//		}
+//		return user;
+//	}
 	default User findByIdAndIsActiveFalse(long id) {
 		var user = this.getReferenceById(id);
 		if (user.isActive()) {

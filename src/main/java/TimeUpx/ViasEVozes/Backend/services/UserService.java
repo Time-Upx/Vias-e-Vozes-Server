@@ -20,7 +20,7 @@ public class UserService {
 		return repository.findAllByIsActiveTrue(page);
 	}
 	public User getById(long id) {
-		return repository.findByIdAndIsActiveTrue(id);
+		return repository.findByIdAndIsActive(id, true);
 	}
 	public Page<User> getFavoritedBy(Pageable page, long contributionId) {
 		return repository.findAllActiveFavoritedBy(page, contributionId);
@@ -33,26 +33,26 @@ public class UserService {
 	}
 
 	public User update(long id, @Valid UserUpdatingDTO dto) {
-		return repository.findByIdAndIsActiveTrue(id).update(dto);
+		return repository.findByIdAndIsActive(id, true).update(dto);
 	}
 
 	public User delete(long id) {
-		return repository.findByIdAndIsActiveTrue(id).isActive(false);
+		return repository.findByIdAndIsActive(id, true).isActive(false);
 	}
 	public User activate(long id) {
-		return repository.findByIdAndIsActiveFalse(id).isActive(true);
+		return repository.findByIdAndIsActive(id, false).isActive(true);
 	}
 
 	public User favoriteContribution(long userId, long contributionId, ContributionService service) {
 		var contribution = service.getById(contributionId);
-		var user = repository.findByIdAndIsActiveTrue(userId);
+		var user = repository.findByIdAndIsActive(userId, true);
 		user.favorites().add(contribution);
 		return user;
 	}
 
 	public User unfavoriteContribution(long userId, long contributionId, ContributionService service) {
 		var contribution = service.getById(contributionId);
-		var user = repository.findByIdAndIsActiveTrue(userId);
+		var user = repository.findByIdAndIsActive(userId, true);
 		user.favorites().remove(contribution);
 		return user;
 	}

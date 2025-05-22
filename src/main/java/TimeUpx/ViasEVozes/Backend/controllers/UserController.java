@@ -103,8 +103,15 @@ public class UserController {
 			@PathVariable long id,
 			@RequestParam ("file") MultipartFile file,
 			@RequestParam ("placeholder") String placeholder
-	) throws IOException {
+	) {
 		var image = Image.of(file, placeholder);
 		return ResponseEntity.ok(service.getById(id).profilePicture(image).details());
+	}
+
+	@GetMapping
+	public ResponseEntity checkLoggin (
+			@RequestBody Loggin loggin
+	) {
+		return ResponseEntity.noContent().build();
 	}
 }

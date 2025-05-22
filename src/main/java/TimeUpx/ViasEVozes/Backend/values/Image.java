@@ -21,7 +21,7 @@ public class Image {
 
 	private String fileName;
 	private String extension;
-	private byte[] content;
+	@Lob private byte[] content;
 	private String placeholder;
 
 	public record DTO(
@@ -47,7 +47,7 @@ public class Image {
 		try {
 			String name = file.getOriginalFilename();
 			byte[] bytes = file.getBytes();
-			String extension = file.getContentType();
+			String extension = file.getContentType().replace("image/", "");
 			if (bytes.length > MAX_IMAGE_SIZE) {
 				throw new InvalidImageException("Image limit exceeded: " + bytes.length + " (max: 5MB)");
 			}

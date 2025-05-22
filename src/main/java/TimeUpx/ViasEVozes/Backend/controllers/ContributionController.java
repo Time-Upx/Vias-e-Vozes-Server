@@ -44,6 +44,7 @@ public class ContributionController {
 	}
 
 	@GetMapping
+	@CrossOrigin("*")
 	public ResponseEntity getAll (
 			@PageableDefault (
 					size = 10,
@@ -100,7 +101,7 @@ public class ContributionController {
 	@PatchMapping (path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity uploadImage (
 			@PathVariable long id,
-			@RequestParam ("file") MultipartFile file,
+			@RequestBody MultipartFile file,
 			@RequestParam ("placeholder") String placeholder
 	) throws IOException {
 		return ResponseEntity.ok(service.getById(id).image(Image.of(file, placeholder)).details());

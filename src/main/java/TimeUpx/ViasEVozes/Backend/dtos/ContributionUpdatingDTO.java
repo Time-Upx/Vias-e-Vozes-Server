@@ -12,5 +12,5 @@ public record ContributionUpdatingDTO (
 		@Valid Link[] links,
 		Boolean isAnonymous,
 		ContributionStatus status,
-		@Valid Address address
+		@Valid Address.DTO address
 ) {}
