@@ -44,6 +44,15 @@ public class UserController {
 		return ResponseEntity.ok(service.favoriteContribution(userId, contributionId, contributionService).details());
 	}
 
+	@PostMapping (path = "/loggin")
+	public ResponseEntity checkLoggin (
+			@RequestBody Loggin loggin
+	) {
+		record Result (boolean result) {}
+		boolean result = service.checkLoggin(loggin.name(), loggin.email(), loggin.password());
+		return ResponseEntity.accepted().body(new Result(result));
+	}
+
 	@GetMapping
 	public ResponseEntity getAll (
 			@PageableDefault (
@@ -78,8 +87,8 @@ public class UserController {
 
 	@Transactional
 	@DeleteMapping ("/{id}")
-	public ResponseEntity delete (@PathVariable long id) {
-		return ResponseEntity.ok(service.delete(id).details());
+	public ResponseEntity desactivate (@PathVariable long id) {
+		return ResponseEntity.ok(service.desactivate(id).details());
 	}
 
 	@Transactional
@@ -89,6 +98,12 @@ public class UserController {
 			@PathVariable long contributionId
 	) {
 		return ResponseEntity.ok(service.unfavoriteContribution(userId, contributionId, contributionService).details());
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}/remove")
+	public ResponseEntity remove (@PathVariable long id) {
+		return ResponseEntity.ok(service.remove(id).details());
 	}
 
 	@Transactional
@@ -106,12 +121,5 @@ public class UserController {
 	) {
 		var image = Image.of(file, placeholder);
 		return ResponseEntity.ok(service.getById(id).profilePicture(image).details());
-	}
-
-	@GetMapping
-	public ResponseEntity checkLoggin (
-			@RequestBody Loggin loggin
-	) {
-		return ResponseEntity.noContent().build();
 	}
 }

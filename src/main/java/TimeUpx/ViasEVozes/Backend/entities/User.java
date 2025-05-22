@@ -11,7 +11,7 @@ import java.util.*;
 
 @AllArgsConstructor (access = AccessLevel.PRIVATE)
 @NoArgsConstructor (access = AccessLevel.PROTECTED)
-@EqualsAndHashCode (of = "id")
+@EqualsAndHashCode (of = {"email", "name", "password"})
 @Accessors (fluent = true)
 @Builder (setterPrefix = "with")
 @Getter

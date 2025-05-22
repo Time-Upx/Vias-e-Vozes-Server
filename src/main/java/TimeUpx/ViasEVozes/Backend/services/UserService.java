@@ -20,40 +20,60 @@ public class UserService {
 		return repository.findAllByIsActiveTrue(page);
 	}
 	public User getById(long id) {
-		return repository.findByIdAndIsActive(id, true);
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 	}
 	public Page<User> getFavoritedBy(Pageable page, long contributionId) {
 		return repository.findAllActiveFavoritedBy(page, contributionId);
 	}
 
 	public User insert(@Valid User user) {
-		if (repository.exists(Example.of(user)))
+		if (repository.existsByNameOrEmailAndPassword(user.name(), user.email(), user.password()))
 			throw new EntityExistsException("User already exists");
 		return repository.save(user);
 	}
 
 	public User update(long id, @Valid UserUpdatingDTO dto) {
-		return repository.findByIdAndIsActive(id, true).update(dto);
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"))
+				.update(dto);
 	}
 
-	public User delete(long id) {
-		return repository.findByIdAndIsActive(id, true).isActive(false);
+	public User desactivate(long id) {
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"))
+				.isActive(false);
 	}
 	public User activate(long id) {
-		return repository.findByIdAndIsActive(id, false).isActive(true);
+		return repository.findByIdAndIsActive(id, false)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"))
+				.isActive(true);
 	}
 
 	public User favoriteContribution(long userId, long contributionId, ContributionService service) {
 		var contribution = service.getById(contributionId);
-		var user = repository.findByIdAndIsActive(userId, true);
+		var user = repository.findByIdAndIsActive(userId, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		user.favorites().add(contribution);
 		return user;
 	}
 
 	public User unfavoriteContribution(long userId, long contributionId, ContributionService service) {
 		var contribution = service.getById(contributionId);
-		var user = repository.findByIdAndIsActive(userId, true);
+		var user = repository.findByIdAndIsActive(userId, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		user.favorites().remove(contribution);
+		return user;
+	}
+
+	public boolean checkLoggin(String name, String email, String password) {
+		return repository.existsByNameOrEmailAndPassword(name, email, password);
+	}
+
+	public User remove(long id) {
+		var user = repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		repository.deleteById(id);
 		return user;
 	}
 }

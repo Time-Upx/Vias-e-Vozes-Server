@@ -81,14 +81,20 @@ public class ContributionController {
 
 	@Transactional
 	@DeleteMapping ("/{id}")
-	public ResponseEntity remove (@PathVariable long id) {
-		return ResponseEntity.ok(service.remove(id).details());
+	public ResponseEntity desactivate (@PathVariable long id) {
+		return ResponseEntity.ok(service.desactivate(id).details());
 	}
 
 	@Transactional
 	@DeleteMapping ("/{id}/like")
 	public ResponseEntity decreaseLike (@PathVariable long id) {
 		return ResponseEntity.ok(service.adjustLikes(id, -1).details());
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}/remove")
+	public ResponseEntity remove (@PathVariable long id) {
+		return ResponseEntity.ok(service.remove(id).details());
 	}
 
 	@Transactional

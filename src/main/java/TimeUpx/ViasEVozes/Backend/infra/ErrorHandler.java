@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.*;
 @RestControllerAdvice
 public class ErrorHandler {
 
+	record Message(String error) {}
+
 	@ExceptionHandler (EntityNotFoundException.class)
-	public ResponseEntity handleNotFoundException () {
-		return ResponseEntity.notFound().build();
+	public ResponseEntity handleNotFoundException (EntityNotFoundException exception) {
+		return ResponseEntity.status(404).body(new Message(exception.getMessage()));
 	}
 
 	@ExceptionHandler (MethodArgumentNotValidException.class)
@@ -24,19 +26,16 @@ public class ErrorHandler {
 
 	@ExceptionHandler (EntityActivityException.class)
 	public ResponseEntity handleEntityActivityException (EntityActivityException exception) {
-		record Message(String error) {}
 		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
 	}
 
 	@ExceptionHandler (EntityExistsException.class)
 	public ResponseEntity handleAlreadyExistingEntity (EntityExistsException exception) {
-		record Message(String error) {}
 		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
 	}
 
 	@ExceptionHandler (InvalidImageException.class)
 	public ResponseEntity handleInvalidImageException (InvalidImageException exception) {
-		record Message(String error) {}
 		return ResponseEntity.badRequest().body(new Message(exception.getMessage()));
 	}
 }
