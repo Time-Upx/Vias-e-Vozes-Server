@@ -11,14 +11,13 @@ import org.springframework.data.domain.*;
 import org.springframework.data.web.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.*;
-
-import java.io.*;
 
 @RestController
 @RequestMapping ("/user")
 @RequiredArgsConstructor
+@CrossOrigin(allowedHeaders = "*")
 public class UserController {
 
 	private final UserService service;
@@ -42,6 +41,14 @@ public class UserController {
 			@PathVariable long contributionId
 	) {
 		return ResponseEntity.ok(service.favoriteContribution(userId, contributionId, contributionService).details());
+	}
+
+	@PostMapping (path = "/loggin")
+	public ResponseEntity checkLoggin (
+			@RequestBody Loggin loggin
+	) {
+		var user = service.checkLoggin(loggin.name(), loggin.email(), loggin.password());
+		return ResponseEntity.accepted().body(LogginDTO.of(user));
 	}
 
 	@GetMapping
@@ -78,8 +85,8 @@ public class UserController {
 
 	@Transactional
 	@DeleteMapping ("/{id}")
-	public ResponseEntity delete (@PathVariable long id) {
-		return ResponseEntity.ok(service.delete(id).details());
+	public ResponseEntity desactivate (@PathVariable long id) {
+		return ResponseEntity.ok(service.desactivate(id).details());
 	}
 
 	@Transactional
@@ -92,6 +99,12 @@ public class UserController {
 	}
 
 	@Transactional
+	@DeleteMapping ("/{id}/remove")
+	public ResponseEntity remove (@PathVariable long id) {
+		return ResponseEntity.ok(service.remove(id).details());
+	}
+
+	@Transactional
 	@PatchMapping ("/{id}/activate")
 	public ResponseEntity activate (@PathVariable long id) {
 		return ResponseEntity.ok(service.activate(id).details());
@@ -101,9 +114,10 @@ public class UserController {
 	@PatchMapping (path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity uploadImage (
 			@PathVariable long id,
-			@RequestParam ("file") MultipartFile file,
-			@RequestParam ("placeholder") String placeholder
-	) throws IOException {
+			@RequestParam("file") MultipartFile file,
+			@RequestParam("placeholder") String placeholder
+
+	) {
 		var image = Image.of(file, placeholder);
 		return ResponseEntity.ok(service.getById(id).profilePicture(image).details());
 	}

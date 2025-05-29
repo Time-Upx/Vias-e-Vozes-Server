@@ -30,23 +30,38 @@ public class ContributionService {
 	}
 
 	public Contribution update (long id, @Valid ContributionUpdatingDTO dto) {
-		return repository.findByIdActive(id).update(dto);
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"))
+				.update(dto);
 	}
 
-	public Contribution remove (long id) {
-		return repository.findByIdActive(id).isActive(false);
+	public Contribution desactivate (long id) {
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"))
+				.isActive(false);
 	}
 
 	public Contribution activate (long id) {
-		return repository.findByIdInactive(id).isActive(true);
+		return repository.findByIdAndIsActive(id, false)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"))
+				.isActive(true);
 	}
 
 	public Contribution getById (long id) {
-		return repository.findByIdActive(id);
+		return repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"));
 	}
 
 	public Contribution adjustLikes (long id, int value) {
-		var contribution = repository.findByIdActive(id);
+		var contribution = repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"));
 		return contribution.adjustLikes(value);
+	}
+
+	public Contribution remove(long id) {
+		var contribution = repository.findByIdAndIsActive(id, true)
+				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"));
+		repository.deleteById(id);
+		return contribution;
 	}
 }

@@ -9,6 +9,8 @@ import lombok.experimental.*;
 import java.time.*;
 import java.util.*;
 
+import static TimeUpx.ViasEVozes.Backend.values.Address.toDTO;
+
 @AllArgsConstructor (access = AccessLevel.PRIVATE)
 @NoArgsConstructor (access = AccessLevel.PROTECTED)
 @EqualsAndHashCode (of = {"id"})
@@ -81,7 +83,7 @@ public class Contribution {
 		if (dto.description() != null) description = dto.description();
 		if (dto.isAnonymous() != null) isAnonymous = dto.isAnonymous();
 		if (dto.status() != null) status = dto.status();
-		if (dto.address() != null) address = dto.address();
+		if (dto.address() != null) address = Address.of(dto.address());
 		if (dto.links() != null) links = Arrays.asList(dto.links());
 
 		return this;

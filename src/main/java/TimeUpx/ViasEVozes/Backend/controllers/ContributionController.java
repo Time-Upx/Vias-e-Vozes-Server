@@ -20,6 +20,7 @@ import java.io.*;
 @RestController
 @RequestMapping ("/contribution")
 @RequiredArgsConstructor
+@CrossOrigin(allowedHeaders = "*")
 public class ContributionController {
 
 	private final ContributionService service;
@@ -44,6 +45,7 @@ public class ContributionController {
 	}
 
 	@GetMapping
+	@CrossOrigin("*")
 	public ResponseEntity getAll (
 			@PageableDefault (
 					size = 10,
@@ -80,14 +82,20 @@ public class ContributionController {
 
 	@Transactional
 	@DeleteMapping ("/{id}")
-	public ResponseEntity remove (@PathVariable long id) {
-		return ResponseEntity.ok(service.remove(id).details());
+	public ResponseEntity desactivate (@PathVariable long id) {
+		return ResponseEntity.ok(service.desactivate(id).details());
 	}
 
 	@Transactional
 	@DeleteMapping ("/{id}/like")
 	public ResponseEntity decreaseLike (@PathVariable long id) {
 		return ResponseEntity.ok(service.adjustLikes(id, -1).details());
+	}
+
+	@Transactional
+	@DeleteMapping ("/{id}/remove")
+	public ResponseEntity remove (@PathVariable long id) {
+		return ResponseEntity.ok(service.remove(id).details());
 	}
 
 	@Transactional
@@ -100,7 +108,7 @@ public class ContributionController {
 	@PatchMapping (path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity uploadImage (
 			@PathVariable long id,
-			@RequestParam ("file") MultipartFile file,
+			@RequestBody MultipartFile file,
 			@RequestParam ("placeholder") String placeholder
 	) throws IOException {
 		return ResponseEntity.ok(service.getById(id).image(Image.of(file, placeholder)).details());
