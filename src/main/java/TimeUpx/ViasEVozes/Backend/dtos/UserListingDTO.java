@@ -10,7 +10,7 @@ import java.time.*;
 public record UserListingDTO(
 		Long id,
 		String name,
-		LocalDateTime dateOfArrival,
+		LocalDateTime timeOfArrival,
 		UserRole role,
 		boolean preferAnonymous
 ) {
@@ -18,7 +18,7 @@ public record UserListingDTO(
 		return builder()
 				.withId(user.id())
 				.withName(user.name())
-				.withDateOfArrival(user.dateOfArrival())
+				.withTimeOfArrival(user.timeOfArrival())
 				.withRole(user.role())
 				.withPreferAnonymous(user.preferAnonymous())
 				.build();

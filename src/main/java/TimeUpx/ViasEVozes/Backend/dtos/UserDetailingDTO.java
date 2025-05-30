@@ -17,7 +17,7 @@ public record UserDetailingDTO(
 		Image.DTO profilePicture,
 		String email,
 		boolean preferAnonymous,
-		LocalDateTime dateOfArrival,
+		LocalDateTime timeOfArrival,
 		boolean isActive
 ) {
 	public static UserDetailingDTO of (User user) {
@@ -31,7 +31,7 @@ public record UserDetailingDTO(
 				.withProfilePicture(Image.toDTO(user.profilePicture()))
 				.withEmail(user.email())
 				.withPreferAnonymous(user.preferAnonymous())
-				.withDateOfArrival(user.dateOfArrival())
+				.withTimeOfArrival(user.timeOfArrival())
 				.withIsActive(user.isActive())
 				.build();
 	}

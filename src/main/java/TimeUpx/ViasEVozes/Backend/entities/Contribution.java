@@ -69,7 +69,10 @@ public class Contribution {
 			joinColumns = @JoinColumn (name = "contribution_id"),
 			inverseJoinColumns = @JoinColumn (name = "user_id")
 	)
-	private Set<User> favoritedBy;
+	private List<User> favoritedBy;
+
+	@OneToMany
+	private List<Comment> comments;
 
 	public ContributionDetailingDTO details() {
 		return ContributionDetailingDTO.of(this);
@@ -107,7 +110,8 @@ public class Contribution {
 				.withStatus(ContributionStatus.ANALYSING)
 				.withIsActive(true)
 				.withAddress(Address.of(dto.address()))
-				.withFavoritedBy(new HashSet<>())
+				.withFavoritedBy(new ArrayList<>())
+				.withComments(new ArrayList<>())
 				.build();
 	}
 }

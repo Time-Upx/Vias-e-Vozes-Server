@@ -35,7 +35,7 @@ public class ContributionService {
 				.update(dto);
 	}
 
-	public Contribution desactivate (long id) {
+	public Contribution deactivate (long id) {
 		return repository.findByIdAndIsActive(id, true)
 				.orElseThrow(() -> new EntityNotFoundException("Contribution not found"))
 				.isActive(false);

@@ -37,7 +37,7 @@ public class User {
 
 	private boolean preferAnonymous;
 
-	private LocalDateTime dateOfArrival;
+	private LocalDateTime timeOfArrival;
 
 	@ManyToMany
 	@JoinTable (
@@ -80,7 +80,7 @@ public class User {
 				.withEmail(dto.email())
 				.withPreferAnonymous(preferAnonymous)
 				.withIsActive(true)
-				.withDateOfArrival(LocalDateTime.now())
+				.withTimeOfArrival(LocalDateTime.now())
 				.withFavorites(new HashSet<>())
 				.build();
 	}

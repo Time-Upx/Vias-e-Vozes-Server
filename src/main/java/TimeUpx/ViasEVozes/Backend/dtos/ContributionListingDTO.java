@@ -11,7 +11,7 @@ public record ContributionListingDTO(
 		Long id,
 		String title,
 		ContributionType type,
-		Long authorId,
+		UserListingDTO author,
 		LocalDateTime timeOfCreation,
 		Boolean isAnonymous,
 		ContributionStatus status
@@ -23,7 +23,7 @@ public record ContributionListingDTO(
 				.withType(contribution.type())
 				.withTitle(contribution.title())
 				.withTimeOfCreation(contribution.timeOfCreation())
-				.withAuthorId(contribution.author().id())
+				.withAuthor(UserListingDTO.of(contribution.author()))
 				.withIsAnonymous(contribution.isAnonymous())
 				.withStatus(contribution.status())
 				.build();

@@ -55,7 +55,7 @@ public class UserController {
 	public ResponseEntity getAll (
 			@PageableDefault (
 					size = 10,
-					sort = {"dateOfArrival"}
+					sort = {"timeOfArrival"}
 			) Pageable page
 	) {
 		return ResponseEntity.ok(service.getAll(page).map(UserListingDTO::of));

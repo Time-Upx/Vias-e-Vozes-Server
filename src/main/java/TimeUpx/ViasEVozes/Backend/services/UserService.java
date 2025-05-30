@@ -30,7 +30,7 @@ public class UserService {
 	}
 
 	public User insert(@Valid User user) {
-		if (repository.findByNameOrEmailAndPassword(user.name(), user.email(), user.password()).isEmpty())
+		if (repository.findByNameOrEmailAndPassword(user.name(), user.email(), user.password()).isPresent())
 			throw new EntityExistsException("User already exists");
 		return repository.save(user);
 	}

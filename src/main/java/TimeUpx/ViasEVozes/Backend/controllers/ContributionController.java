@@ -7,7 +7,6 @@ import TimeUpx.ViasEVozes.Backend.values.*;
 import jakarta.transaction.*;
 import jakarta.validation.*;
 import lombok.*;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.*;
 import org.springframework.http.*;
@@ -25,6 +24,7 @@ public class ContributionController {
 
 	private final ContributionService service;
 	private final UserService userService;
+	private final CommentService commentService;
 
 	@Transactional
 	@PostMapping
@@ -64,11 +64,22 @@ public class ContributionController {
 	public ResponseEntity getFavoritedBy (
 			@PageableDefault (
 					size = 5,
-					sort = {"dateOfArrival"}
+					sort = {"timeOfArrival"}
 			) Pageable page,
 			@PathVariable long id
 	) {
 		return ResponseEntity.ok(userService.getFavoritedBy(page, id).map(UserListingDTO::of));
+	}
+
+	@GetMapping ("/{id}/comments")
+	public ResponseEntity getComments (
+			@PageableDefault (
+					size = 5,
+					sort = {"timeOfComment"}
+			) Pageable page,
+			@PathVariable long id
+	) {
+		return ResponseEntity.ok(commentService.getAllByContribution(page, id).map(CommentListingDTO::of));
 	}
 
 	@Transactional
@@ -83,7 +94,7 @@ public class ContributionController {
 	@Transactional
 	@DeleteMapping ("/{id}")
 	public ResponseEntity desactivate (@PathVariable long id) {
-		return ResponseEntity.ok(service.desactivate(id).details());
+		return ResponseEntity.ok(service.deactivate(id).details());
 	}
 
 	@Transactional
