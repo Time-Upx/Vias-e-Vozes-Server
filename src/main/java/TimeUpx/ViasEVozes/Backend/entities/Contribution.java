@@ -98,7 +98,8 @@ public class Contribution {
 		// Sets default value as "true"
 		boolean isAnonymous = dto.isAnonymous() == null || dto.isAnonymous();
 
-		return builder().withType(dto.type())
+		return builder()
+				.withType(dto.type())
 				.withTitle(dto.title())
 				.withDescription(dto.description())
 				.withImage(Image.draft(dto.imagePlaceholder()))

@@ -116,12 +116,15 @@ public class ContributionController {
 	}
 
 	@Transactional
-	@PatchMapping (path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity uploadImage (
+	@PatchMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> uploadImage(
 			@PathVariable long id,
-			@RequestBody MultipartFile file,
-			@RequestParam ("placeholder") String placeholder
-	) throws IOException {
-		return ResponseEntity.ok(service.getById(id).image(Image.of(file, placeholder)).details());
+			@RequestParam("file") MultipartFile file,
+			@RequestParam("placeholder") String placeholder
+	) {
+
+		Contribution contribution = service.getById(id);
+		Image image = Image.of(file, placeholder);
+		return ResponseEntity.ok(contribution.image(image).details());
 	}
 }
